@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터베이스 테이블 토폴로지 (참조 빈도 기반)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #topology {
+            width: 100vw;
+            height: 100vh;
+        }
+        .links line {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        .nodes circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        .node-label {
+            font-size: 10px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="topology"></div>
+
+    <script>
+        // 데이터 생성 함수 (실제 데이터로 대체해야 함)
+        function generateData(nodeCount) {
+            const nodes = [];
+            const links = [];
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    id: `table_${i}`,
+                    group: Math.floor(Math.random() * 10),
+                    references: 0  // 참조 횟수 초기화
+                });
+            }
+            for (let i = 0; i < nodeCount * 2; i++) {
+                const source = Math.floor(Math.random() * nodeCount);
+                const target = Math.floor(Math.random() * nodeCount);
+                links.push({
+                    source: nodes[source].id,
+                    target: nodes[target].id,
+                    value: Math.random()
+                });
+                // 참조된 테이블의 references 증가
+                nodes[target].references++;
+            }
+            return { nodes, links };
+        }
+
+        const data = generateData(100);  // 100개의 노드 생성
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = d3.select("#topology")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        // 참조 횟수에 따른 노드 크기 설정
+        const sizeScale = d3.scaleLinear()
+            .domain([0, d3.max(data.nodes, d => d.references)])
+            .range([5, 30]);  // 최소 5, 최대 30 크기로 설정
+
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links).id(d => d.id))
+            .force("charge", d3.forceManyBody().strength(-100))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(d => sizeScale(d.references) + 2));
+
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(data.links)
+            .enter().append("line")
+            .attr("stroke-width", d => d.value);
+
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(data.nodes)
+            .enter().append("circle")
+            .attr("r", d => sizeScale(d.references))
+            .attr("fill", d => d3.schemeCategory10[d.group]);
+
+        const label = g.append("g")
+            .attr("class", "node-labels")
+            .selectAll("text")
+            .data(data.nodes)
+            .enter().append("text")
+            .attr("class", "node-label")
+            .text(d => `${d.id} (${d.references})`)
+            .attr("font-size", d => Math.max(8, sizeScale(d.references) / 2));
+
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+
+            label
+                .attr("x", d => d.x + sizeScale(d.references) + 2)
+                .attr("y", d => d.y + 3);
+        });
+
+        node.call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+    </script>
+</body>
+</html>
