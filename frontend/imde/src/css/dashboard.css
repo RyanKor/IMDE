@@ -1,0 +1,123 @@
+/* IMDEDashboard.css */
+
+.imde-dashboard {
+background-color: #3498db;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+.dashboard-header {
+background-color: #2980b9;
+color: white;
+padding: 1rem;
+}
+
+.dashboard-header h1 {
+font-size: 1.5rem;
+font-weight: bold;
+}
+
+.dashboard-header nav ul {
+display: flex;
+flex-wrap: wrap;
+gap: 0.5rem;
+margin-top: 0.5rem;
+}
+
+.dashboard-header nav li {
+font-size: 0.875rem;
+}
+
+.dashboard-main {
+flex-grow: 1;
+padding: 0.5rem;
+display: grid;
+grid-template-columns: 1fr;
+gap: 0.5rem;
+}
+
+.dashboard-section {
+background-color: white;
+padding: 0.5rem;
+border-radius: 0.25rem;
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-section h2 {
+font-size: 1.25rem;
+font-weight: bold;
+margin-bottom: 0.5rem;
+}
+
+.chart-container {
+height: 10rem;
+}
+
+.table-container {
+overflow-x: auto;
+}
+
+.dashboard-section table {
+width: 100%;
+margin-top: 0.5rem;
+font-size: 0.75rem;
+}
+
+.dashboard-section th,
+.dashboard-section td {
+padding: 0.25rem;
+}
+
+.dashboard-footer {
+background-color: #2980b9;
+color: white;
+padding: 0.5rem;
+text-align: center;
+font-size: 0.75rem;
+}
+
+/* 반응형 스타일 */
+@media (min-width: 768px) {
+.dashboard-header h1 {
+    font-size: 2rem;
+}
+
+.dashboard-header nav li {
+    font-size: 1rem;
+}
+
+.dashboard-main {
+    padding: 1rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.dashboard-section {
+    padding: 1rem;
+}
+
+.dashboard-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.chart-container {
+    height: 15rem;
+}
+
+.dashboard-section table {
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+.dashboard-section th,
+.dashboard-section td {
+    padding: 0.5rem;
+}
+
+.dashboard-footer {
+    padding: 1rem;
+    font-size: 0.875rem;
+}
+}
